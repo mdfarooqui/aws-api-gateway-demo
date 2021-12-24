@@ -18,9 +18,9 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-				git([url: 'https://github.com/mdfarooqui/aws-api-gateway-demo.git', branch: 'master', credentialsId: 'git-access'])
-				}
-            }
+				git([url: 'https://github.com/mdfarooqui/aws-api-gateway-demo.git', branch: 'main', credentialsId: 'git-access'])
+			}
+        }
 
         stage('Plan') {
             when {
