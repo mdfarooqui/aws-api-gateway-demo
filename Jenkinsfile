@@ -18,13 +18,8 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                 script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/troy-ingram/week-24-project.git"
-                        }
-                    }
-                }
+				git([url: 'https://github.com/mdfarooqui/aws-api-gateway-demo.git', branch: 'master', credentialsId: 'git-access'])
+				}
             }
 
         stage('Plan') {
