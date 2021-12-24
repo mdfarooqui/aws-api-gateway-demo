@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: openapi-public
+  description: API Gateway AWS Service which belongs to OpenAPI Specification, this service is composed by all signature to handler all profile about users and their proiles.
+    You can find more profile about its usefull in [https://medium.com/@].
+  termsOfService: https://aws.amazon.com/paas/getting-started/
+  contact:
+    name: Company Support Center
+    url: https://aws.amazon.com/aws-swagger/getting-started/
+    #email: TODO
+  license:
+    name: Company API License
+    url: https://aws.amazon.com/aws-swagger/getting-started/
+  version: 1.2.0
+tags:
+- name: Customer Profiles
+  description: Operations relate to manage profile about customer proiles.
+
+paths:
+  /customer/profile/{profileId}:
+      get:
+        tags:
+          - Profile
+        summary: Get customer profile by profileId.
+        description: Get customer profile about by profileId.
+        operationId: GetUserByProfileId
+        # HEADER REQUEST
+        parameters:
+          - in: header
+            name: Authorization
+            schema:
+              type: string
+            required: false
+        # PATH PARAMS
+          - name: profileId
+            in: path
+            required: true
+            description: profileId.
+            schema:
+              type : string
+              minimum: 1
+        responses:
+          200:
+            description: User profile.
+            headers:
+              X-Correlation-ID:
+                $ref: '#/components/schemas/XCorrelationID'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/profileById'
+                example:
+                  profileId: 12345
+                  name: John
+                  emailAddress: John@kcl.tx
+          400:
+            $ref: '#/components/responses/400BadRequest'
+          401:
+            $ref: '#/components/responses/401Unauthorized'
+          500:
+            $ref: '#/components/responses/500InternalServerError'
+        x-amazon-apigateway-auth:
+          type: none
+        x-amazon-apigateway-integration:
+          type: mock
+          requestTemplates:
+            application/json: |
+              {
+                "statusCode" : 200
+              }
+          responses:
+            "default":
+              statusCode: 200
+              responseTemplates:
+                application/json: |
+                  {}
+
+components:
+
+  headers:
+    Authorization:
+      description: SON Web Token (JWT) entregado al usuario en la autenticación.
+      schema:
+        type: string
+
+  schemas:
+    User:
+      description: User profile.
+      type: object
+      properties:
+        profileId:
+          description: User Profile Id.
+          type: string
+          minimum: 1
+          maximum: 16
+        firstName:
+          description: User first name.
+          type: string
+          minLength: 1
+          maxLength:  256
+        lastName:
+          description: User last name.
+          type: string
+          maxLength:  256
+        emailAddress:
+          description: User email address.
+          type: string
+          maxLength:  256
+          
+
+    profileById:
+      description: Response about user profile profile by its profileId.
+      type: object
+      required:
+        - profileId
+      properties:
+        user:
+            allOf:
+              - $ref: '#/components/schemas/User'
+              - type: object
+            required:
+              - profileId
+              - lastName
+              - emailAddress
+
+    XCorrelationID:
+      type: object
+      description: ID where the response and request are associated.
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+
+  responses:
+    cors:
+      description: "200 response"
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Max-Age:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+      content:
+        application/json:
+          schema:
+            title: "Empty Schema"
+            type: "object"
+            
+    500InternalServerError:
+      description: Server encountered an unexpected condition that prevented it from fulfilling the request.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/schemas/XCorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+              code: 500
+              message: Server encountered an unexpected condition that prevented it from fulfilling the request.
+    400BadRequest:
+      description: Message has not a format correct.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/schemas/XCorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+              code: 400
+              message: Message has not a format correct.
+    401Unauthorized:
+      description: Authorization request user is not available.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/schemas/XCorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+              code: 401
+              message: Authorization request user is not available.
